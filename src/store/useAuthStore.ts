@@ -50,7 +50,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
             .from('profiles')
             .select('*')
             .eq('user_id', session.user.id)
-            .maybeSingle()
+            .maybeSingle();
           set({ user: session.user, session, profile, loading: false, initialized: true, supabaseReady: true });
         } catch {
           set({ user: session.user, session, profile: null, loading: false, initialized: true, supabaseReady: true });
@@ -71,7 +71,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
                 .from('profiles')
                 .select('*')
                 .eq('user_id', session.user.id)
-                .maybeSingle()
+                .maybeSingle();
               set({ user: session.user, session, profile });
             } catch {
               set({ user: session.user, session });
@@ -87,19 +87,53 @@ export const useAuthStore = create<AuthState>((set, get) => ({
   },
 
   signUp: async (email, password, username) => {
-    if (!isSupabaseConfigured || !supabase) return { error: 'Supabase не настроен. Подключите базу данных.' };
-    try {
-      const { error } = await supabase.auth.signUp({
-        email,
-        password,
-        options: { data: { username } },
-      });
-      if (error) return { error: error.message };
-      return { error: null };
-    } catch (err) {
-      return { error: err instanceof Error ? err.message : 'Ошибка регистрации' };
+  if (!isSupabaseConfigured || !supabase) {
+    return { error: 'Supabase не настроен' };
+  }
+
+  try {
+    const { data, error } = await supabase.auth.signUp({
+      email,
+      password,
+      options: {
+        data: { username },
+      },
+    });
+
+    if (error) {
+      return { error: error.message };
     }
-  },
+
+    if (data.user) {
+      await supabase.from('profiles').upsert({
+        user_id: data.user.id,
+        username,
+        display_name: username,
+        role: 'user',
+        elo_rating: 1000,
+        wins: 0,
+        losses: 0,
+        draws: 0,
+        total_answers: 0,
+        correct_answers: 0,
+        current_streak: 0,
+        best_streak: 0,
+        tests_completed: 0,
+        is_online: true,
+      });
+    }
+
+    return { error: null };
+
+  } catch (err) {
+    return {
+      error:
+        err instanceof Error
+          ? err.message
+          : 'Ошибка регистрации',
+    };
+  }
+},
 
   signIn: async (email, password) => {
     if (!isSupabaseConfigured || !supabase) return { error: 'Supabase не настроен. Подключите базу данных.' };
