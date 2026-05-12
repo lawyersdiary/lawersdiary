@@ -31,8 +31,8 @@ const LoadingScreen: React.FC = () => (
 const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { user, profile, initialized } = useAuthStore();
   if (!initialized) return <LoadingScreen />;
-  if (!user || !profile) {
-  return <LoadingScreen />;
+  if (!user) {
+  return <Navigate to="/login" replace />;
 }
   return <Layout>{children}</Layout>;
 };
