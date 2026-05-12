@@ -132,7 +132,10 @@ export const useRoomStore = create<RoomState>((set, get) => ({
     try {
       const { data } = await supabase
         .from('messages')
-        .select('*')
+        .select(`
+  *,
+  profile:profiles(username)
+`)
         .eq('room_id', roomId)
         .order('created_at', { ascending: true })
         .limit(100);

@@ -4,6 +4,8 @@ import { MessageSquare, Lock, Globe, Plus, Users, Search, Hash, Send, Smile } fr
 import { Card, Button, Input, Badge, Modal, EmptyState } from '@/components/ui';
 import { useRoomStore } from '@/store/useDataStores';
 import { useAuthStore } from '@/store/useAuthStore';
+import EmojiPicker from 'emoji-picker-react';
+import { SmilePlus } from 'lucide-react';
 
 const Rooms: React.FC = () => {
   const { user } = useAuthStore();
@@ -198,7 +200,7 @@ const Rooms: React.FC = () => {
           >
             {!isMine && (
   <p className="text-xs text-indigo-300 mb-1 font-medium">
-    Пользователь
+    {msg.profile?.username || 'Пользователь'}
   </p>
 )}
 
@@ -227,7 +229,7 @@ const Rooms: React.FC = () => {
               <div className="p-4 border-t border-white/10">
                 <div className="flex items-center gap-2">
                   <button className="p-2 rounded-lg hover:bg-white/5 text-slate-400 hover:text-white transition-colors">
-                    <Smile className="w-5 h-5" />
+                    <SmilePlus className="w-5 h-5" />
                   </button>
                   <input
                     type="text"
