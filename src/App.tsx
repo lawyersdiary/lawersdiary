@@ -29,14 +29,16 @@ const LoadingScreen: React.FC = () => (
 );
 
 const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const { user, initialized } = useAuthStore();
+  const { user, profile, initialized } = useAuthStore();
   if (!initialized) return <LoadingScreen />;
-  if (!user) return <Navigate to="/login" replace />;
+  if (!user || !profile) {
+  return <LoadingScreen />;
+}
   return <Layout>{children}</Layout>;
 };
 
 const PublicRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const { user, initialized } = useAuthStore();
+  const { user, profile, initialized } = useAuthStore();
   if (!initialized) return <LoadingScreen />;
   if (user) return <Navigate to="/dashboard" replace />;
   return <>{children}</>;

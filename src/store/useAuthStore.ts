@@ -105,23 +105,31 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     }
 
     if (data.user) {
-      await supabase.from('profiles').upsert({
-        user_id: data.user.id,
-        username,
-        display_name: username,
-        role: 'user',
-        elo_rating: 1000,
-        wins: 0,
-        losses: 0,
-        draws: 0,
-        total_answers: 0,
-        correct_answers: 0,
-        current_streak: 0,
-        best_streak: 0,
-        tests_completed: 0,
-        is_online: true,
-      });
-    }
+  const profileData = {
+    user_id: data.user.id,
+    username,
+    display_name: username,
+    role: 'user',
+    elo_rating: 1000,
+    wins: 0,
+    losses: 0,
+    draws: 0,
+    total_answers: 0,
+    correct_answers: 0,
+    current_streak: 0,
+    best_streak: 0,
+    tests_completed: 0,
+    is_online: true,
+  };
+
+  await supabase.from('profiles').upsert(profileData);
+
+  set({
+    user: data.user,
+    session: data.session,
+    profile: profileData as any,
+  });
+}
 
     return { error: null };
 
