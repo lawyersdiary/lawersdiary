@@ -201,7 +201,7 @@ const Rooms: React.FC = () => {
           >
             {!isMine && (
   <p className="text-xs text-indigo-300 mb-1 font-medium">
-    {msg.profile?.username || 'Пользователь'}
+    {(msg as any).username || 'Пользователь'}
   </p>
 )}
 
@@ -240,7 +240,6 @@ const Rooms: React.FC = () => {
   {showEmoji && (
     <div className="absolute bottom-12 left-0 z-50">
       <EmojiPicker
-        theme="dark"
         onEmojiClick={(emojiData) => {
           setNewMessage((prev) => prev + emojiData.emoji);
         }}

@@ -128,51 +128,40 @@ export const useRoomStore = create<RoomState>((set, get) => ({
   setCurrentRoom: (room) => set({ currentRoom: room, messages: [] }),
 
   fetchMessages: async (roomId) => {
-    if (!isSupabaseConfigured || !supabase) return;
-    try {
-      const { data } = await supabase
-        .from('messages')
-        .select('*')
-        .eq('room_id', roomId)
-        .order('created_at', { ascending: true })
-        .limit(100);
-      if (data) {
-  const formatted = await Promise.all(
-    data.map(async (msg: any) => {
-      const { data: profile } = await supabase
-        .from('profiles')
-        .select('username')
-        .eq('user_id', msg.user_id)
-        .single();
-if (data) {
-  const formatted = await Promise.all(
-    data.map(async (msg: any) => {
-      const { data: profile } = await supabase
-        .from('profiles')
-        .select('username')
-        .eq('user_id', msg.user_id)
-        .single();
+  if (!isSupabaseConfigured || !supabase) return;
 
-      return {
-        ...msg,
-        username: profile?.username || 'Пользователь',
-      };
-    })
-  );
+  try {
+    const { data } = await supabase
+      .from('messages')
+      .select('*')
+      .eq('room_id', roomId)
+      .order('created_at', { ascending: true })
+      .limit(100);
 
-  set({ messages: formatted });
-}
-      return {
-        ...msg,
-        username: profile?.username || 'Пользователь',
-      };
-    })
-  );
+    if (!data) return;
 
-  set({ messages: formatted });
-}
-    } catch { /* ignore */ }
-  },
+    const userIds = [...new Set(data.map((m: any) => m.user_id))];
+
+    const { data: profiles } = await supabase
+      .from('profiles')
+      .select('user_id, username')
+      .in('user_id', userIds);
+
+    const profileMap = new Map(
+      (profiles || []).map((p: any) => [p.user_id, p.username])
+    );
+
+    const formatted = data.map((msg: any) => ({
+      ...msg,
+      username: profileMap.get(msg.user_id) || 'Пользователь',
+    }));
+
+    set({ messages: formatted });
+
+  } catch (err) {
+    console.error(err);
+  }
+},
 
   sendMessage: async (roomId, content, type = 'text') => {
   if (!isSupabaseConfigured || !supabase) return;
