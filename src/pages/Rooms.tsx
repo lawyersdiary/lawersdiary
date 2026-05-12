@@ -1,13 +1,17 @@
-import React, { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { MessageSquare, Lock, Globe, Plus, Users, Search, Hash, Send, Smile } from 'lucide-react';
 import { Card, Button, Input, Badge, Modal, EmptyState } from '@/components/ui';
 import { useRoomStore } from '@/store/useDataStores';
 
+
 const Rooms: React.FC = () => {
   const { rooms, createRoom, fetchRooms } = useRoomStore();
   const [createOpen, setCreateOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
+  useEffect(() => {
+  fetchRooms();
+}, []);
   const [selectedRoom, setSelectedRoom] = useState<string | null>(null);
   const [newMessage, setNewMessage] = useState('');
   const [newRoom, setNewRoom] = useState({ name: '', description: '', type: 'public', password: '', category: '' });
