@@ -66,9 +66,13 @@ export const useRoomStore = create<RoomState>((set, get) => ({
       if (room?.type === 'password' && room.password !== password) {
         return { error: 'Неверный пароль' };
       }
-      const { error } = await supabase.from('room_members').insert({
-        room_id: roomId, user_id: user.id, role: 'member',
-      });
+      const { error } = await supabase
+  .from('room_members')
+  .upsert({
+    room_id: roomId,
+    user_id: user.id,
+    role: 'member',
+  });
       if (error) return { error: error.message };
       return { error: null };
     } catch (err) {
@@ -101,15 +105,30 @@ export const useRoomStore = create<RoomState>((set, get) => ({
   },
 
   sendMessage: async (roomId, content, type = 'text') => {
-    if (!isSupabaseConfigured || !supabase) return;
-    try {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return;
-      await supabase.from('messages').insert({
-        room_id: roomId, user_id: user.id, content, type,
-      });
-    } catch { /* ignore */ }
-  },
+  if (!isSupabaseConfigured || !supabase) return;
+
+  try {
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+
+    if (!user) return;
+
+    const { error } = await supabase.from('messages').insert({
+      room_id: roomId,
+      user_id: user.id,
+      content,
+      type,
+    });
+
+    if (error) {
+      console.error(error);
+      alert(error.message);
+    }
+  } catch (err) {
+    console.error(err);
+  }
+},
 
   deleteMessage: async (messageId) => {
     if (!isSupabaseConfigured || !supabase) return;
