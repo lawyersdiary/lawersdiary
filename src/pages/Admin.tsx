@@ -1,8 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Shield, Users, FileText, Flag, Search, BarChart3, MessageSquare, Swords, Eye } from 'lucide-react';
 import { Card, Button, Input, Badge, EmptyState, Modal, Select } from '@/components/ui';
 import { useAuthStore } from '@/store/useAuthStore';
+import { useRoomStore, useQuizStore } from '@/store/useDataStores';
 
 const adminTabs = [
   { id: 'overview', label: 'Обзор', icon: <BarChart3 className="w-4 h-4" /> },
@@ -19,6 +20,28 @@ const Admin: React.FC = () => {
   const [activeTab, setActiveTab] = useState('overview');
   const [searchQuery, setSearchQuery] = useState('');
   const [roleModal, setRoleModal] = useState(false);
+  const { rooms, fetchRooms } = useRoomStore();
+const { quizzes, tests, fetchQuizzes, fetchTests } = useQuizStore();
+
+const [usersCount, setUsersCount] = useState(0);
+
+useEffect(() => {
+  fetchRooms();
+  fetchQuizzes();
+  fetchTests();
+
+  const loadUsers = async () => {
+    const { supabase } = await import('@/lib/supabase');
+
+    const { count } = await supabase
+      .from('profiles')
+      .select('*', { count: 'exact', head: true });
+
+    setUsersCount(count || 0);
+  };
+
+  loadUsers();
+}, []);
 
   if (!hasMinRole('admin')) {
     return (
