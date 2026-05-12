@@ -32,10 +32,17 @@ export const useRoomStore = create<RoomState>((set, get) => ({
     try {
       const { data } = await supabase
         .from('rooms')
-        .select('*')
+        .select('*, room_members(count)')
         .eq('is_active', true)
         .order('created_at', { ascending: false });
-      if (data) set({ rooms: data });
+      if (data) {
+  const roomsWithCount = data.map((room: any) => ({
+    ...room,
+    online_count: room.room_members?.[0]?.count || 0,
+  }));
+
+  set({ rooms: roomsWithCount });
+}
     } catch { /* ignore */ }
   },
 
