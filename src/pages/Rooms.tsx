@@ -156,8 +156,13 @@ const Rooms: React.FC = () => {
                     К
                   </div>
                   <div>
-                    <h3 className="font-semibold">Комната</h3>
-                    <p className="text-xs text-slate-400">0 участников</p>
+                    <h3 className="font-semibold">
+  {rooms.find((r) => r.id === selectedRoom)?.name || 'Комната'}
+</h3>
+
+<p className="text-xs text-slate-400">
+  {rooms.find((r) => r.id === selectedRoom)?.online_count || 0} участников
+</p>
                   </div>
                 </div>
                 <div className="flex items-center gap-2">
