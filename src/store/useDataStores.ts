@@ -73,7 +73,9 @@ export const useRoomStore = create<RoomState>((set, get) => ({
     user_id: user.id,
     role: 'member',
   });
-      if (error) return { error: error.message };
+      if (error && !error.message.includes('duplicate key')) {
+  return { error: error.message };
+}
       return { error: null };
     } catch (err) {
       return { error: err instanceof Error ? err.message : 'Ошибка' };
@@ -255,9 +257,7 @@ export const useQuizStore = create<QuizState>((set) => ({
         .from('tests')
         .insert({ ...testData, owner_id: user.id })
         .select('*').single();
-      if (error && !error.message.includes('duplicate key')) {
-  return { error: error.message };
-}
+      if (error) return { error: error.message };
       set((s) => ({ tests: [data, ...s.tests] }));
       return { error: null, test: data };
     } catch (err) {
