@@ -32,7 +32,7 @@ export const useRoomStore = create<RoomState>((set, get) => ({
     try {
       const { data } = await supabase
         .from('rooms')
-        .select('*, owner:profiles(*)')
+        .select('*')
         .eq('is_active', true)
         .order('created_at', { ascending: false });
       if (data) set({ rooms: data });
@@ -47,7 +47,7 @@ export const useRoomStore = create<RoomState>((set, get) => ({
       const { data, error } = await supabase
         .from('rooms')
         .insert({ ...roomData, owner_id: user.id })
-        .select('*, owner:profiles(*)')
+        .select('*')
         .single();
       if (error) return { error: error.message };
       set((s) => ({ rooms: [data, ...s.rooms] }));
@@ -92,7 +92,7 @@ export const useRoomStore = create<RoomState>((set, get) => ({
     try {
       const { data } = await supabase
         .from('messages')
-        .select('*, profile:profiles(*)')
+        .select('*')
         .eq('room_id', roomId)
         .order('created_at', { ascending: true })
         .limit(100);
@@ -169,7 +169,7 @@ export const useQuizStore = create<QuizState>((set) => ({
     try {
       const { data } = await supabase
         .from('quizzes')
-        .select('*, owner:profiles(*)')
+        .select('*')
         .eq('is_published', true)
         .order('created_at', { ascending: false });
       if (data) set({ quizzes: data });
@@ -195,7 +195,7 @@ export const useQuizStore = create<QuizState>((set) => ({
       const { data, error } = await supabase
         .from('quizzes')
         .insert({ ...quizData, owner_id: user.id })
-        .select('*, owner:profiles(*)').single();
+        .select('*').single();
       if (error) return { error: error.message };
       set((s) => ({ quizzes: [data, ...s.quizzes] }));
       return { error: null, quiz: data };
@@ -209,7 +209,7 @@ export const useQuizStore = create<QuizState>((set) => ({
     try {
       const { data } = await supabase
         .from('tests')
-        .select('*, owner:profiles(*)')
+        .select('*')
         .eq('is_published', true)
         .order('created_at', { ascending: false });
       if (data) set({ tests: data });
@@ -235,7 +235,7 @@ export const useQuizStore = create<QuizState>((set) => ({
       const { data, error } = await supabase
         .from('tests')
         .insert({ ...testData, owner_id: user.id })
-        .select('*, owner:profiles(*)').single();
+        .select('*').single();
       if (error) return { error: error.message };
       set((s) => ({ tests: [data, ...s.tests] }));
       return { error: null, test: data };
@@ -282,7 +282,7 @@ export const useDuelStore = create<DuelState>((set) => ({
     try {
       const { data } = await supabase
         .from('duels')
-        .select('*, player1:profiles!duels_player1_id_fkey(*), player2:profiles!duels_player2_id_fkey(*), quiz:quizzes(*)')
+        .select('*')
         .order('created_at', { ascending: false });
       if (data) set({ duels: data });
     } catch { /* ignore */ }
@@ -296,7 +296,7 @@ export const useDuelStore = create<DuelState>((set) => ({
       const { data, error } = await supabase.from('duels').insert({
         player1_id: user.id, player2_id: opponentId, quiz_id: quizId, type,
         status: 'waiting', player1_score: 0, player2_score: 0, current_question: 0, spectators: [],
-      }).select('*, player1:profiles!duels_player1_id_fkey(*), player2:profiles!duels_player2_id_fkey(*), quiz:quizzes(*)').single();
+      }).select('*').single();
       if (error) return { error: error.message };
       set((s) => ({ duels: [data, ...s.duels] }));
       return { error: null, duel: data };
