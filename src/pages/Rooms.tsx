@@ -100,7 +100,10 @@ const Rooms: React.FC = () => {
                     onClick={async () => {
   const result = await joinRoom(room.id);
 
-  if (result.error) {
+  if (
+    result.error &&
+    !result.error.includes('duplicate key')
+  ) {
     alert(result.error);
     return;
   }
