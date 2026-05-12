@@ -81,11 +81,35 @@ useEffect(() => {
         <div className="space-y-6">
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
             {[
-              { label: 'Пользователи', value: '—', icon: <Users className="w-5 h-5" />, color: 'text-blue-400', bg: 'from-blue-500/20' },
-              { label: 'Квизы', value: '—', icon: <FileText className="w-5 h-5" />, color: 'text-emerald-400', bg: 'from-emerald-500/20' },
-              { label: 'Комнаты', value: '—', icon: <MessageSquare className="w-5 h-5" />, color: 'text-violet-400', bg: 'from-violet-500/20' },
-              { label: 'Жалобы', value: '—', icon: <Flag className="w-5 h-5" />, color: 'text-red-400', bg: 'from-red-500/20' },
-            ].map((stat) => (
+  {
+    label: 'Пользователи',
+    value: usersCount,
+    icon: <Users className="w-5 h-5" />,
+    color: 'text-blue-400',
+    bg: 'from-blue-500/20'
+  },
+  {
+    label: 'Квизы',
+    value: quizzes.length,
+    icon: <FileText className="w-5 h-5" />,
+    color: 'text-emerald-400',
+    bg: 'from-emerald-500/20'
+  },
+  {
+    label: 'Комнаты',
+    value: rooms.length,
+    icon: <MessageSquare className="w-5 h-5" />,
+    color: 'text-violet-400',
+    bg: 'from-violet-500/20'
+  },
+  {
+    label: 'Жалобы',
+    value: 0,
+    icon: <Flag className="w-5 h-5" />,
+    color: 'text-red-400',
+    bg: 'from-red-500/20'
+  },
+].map((stat) => (
               <Card key={stat.label} className="relative overflow-hidden">
                 <div className={`absolute inset-0 bg-gradient-to-br ${stat.bg} to-transparent opacity-50`} />
                 <div className="relative">
