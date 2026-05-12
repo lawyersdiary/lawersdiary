@@ -8,6 +8,7 @@ interface RoomState {
   messages: Message[];
   onlineUsers: Profile[];
   typingUsers: Array<{ user_id: string; username: string }>;
+  deleteRoom: (roomId: string) => Promise<any>;
   fetchRooms: () => Promise<void>;
   createRoom: (room: Partial<Room>) => Promise<{ error: string | null; room?: Room }>;
   joinRoom: (roomId: string, password?: string) => Promise<{ error: string | null }>;
@@ -26,6 +27,7 @@ export const useRoomStore = create<RoomState>((set, get) => ({
   messages: [],
   onlineUsers: [],
   typingUsers: [],
+  
 
   fetchRooms: async () => {
     if (!isSupabaseConfigured || !supabase) return;
@@ -88,6 +90,31 @@ export const useRoomStore = create<RoomState>((set, get) => ({
       return { error: err instanceof Error ? err.message : 'Ошибка' };
     }
   },
+
+  deleteRoom: async (roomId: string) => {
+  if (!isSupabaseConfigured || !supabase) {
+    return { error: 'Supabase not configured' };
+  }
+
+  try {
+    const { error } = await supabase
+      .from('rooms')
+      .delete()
+      .eq('id', roomId);
+
+    if (error) {
+      return { error: error.message };
+    }
+
+    set((state) => ({
+      rooms: state.rooms.filter((r) => r.id !== roomId),
+    }));
+
+    return { error: null };
+  } catch (err: any) {
+    return { error: err.message };
+  }
+},
 
   leaveRoom: async (roomId) => {
     if (!isSupabaseConfigured || !supabase) return;

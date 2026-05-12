@@ -5,6 +5,7 @@ import { Card, Button, Input, Badge, EmptyState, Modal, Select } from '@/compone
 import { useAuthStore } from '@/store/useAuthStore';
 import { useRoomStore, useQuizStore } from '@/store/useDataStores';
 
+
 const adminTabs = [
   { id: 'overview', label: 'Обзор', icon: <BarChart3 className="w-4 h-4" /> },
   { id: 'users', label: 'Пользователи', icon: <Users className="w-4 h-4" /> },
@@ -20,7 +21,7 @@ const Admin: React.FC = () => {
   const [activeTab, setActiveTab] = useState('overview');
   const [searchQuery, setSearchQuery] = useState('');
   const [roleModal, setRoleModal] = useState(false);
-  const { rooms, fetchRooms } = useRoomStore();
+  const { rooms, fetchRooms, deleteRoom } = useRoomStore();
 const { quizzes, tests, fetchQuizzes, fetchTests } = useQuizStore();
 
 const [usersCount, setUsersCount] = useState(0);
@@ -189,11 +190,43 @@ useEffect(() => {
       {activeTab === 'rooms' && (
         <div className="space-y-4">
           <Input placeholder="Поиск комнат..." icon={<Search className="w-4 h-4" />} value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} />
-          <EmptyState
-            icon={<MessageSquare className="w-12 h-12" />}
-            title="Управление комнатами"
-            description="Подключите Supabase для модерации комнат"
-          />
+        <div className="space-y-3">
+  {rooms.map((room) => (
+    <Card
+      key={room.id}
+      className="flex items-center justify-between"
+    >
+      <div>
+        <h3 className="font-medium">{room.name}</h3>
+
+        <p className="text-sm text-slate-400">
+          {room.description || 'Без описания'}
+        </p>
+      </div>
+
+      <Button
+        variant="danger"
+        size="sm"
+        onClick={async () => {
+          if (!confirm('Удалить комнату?')) return;
+
+          const result = await deleteRoom(room.id);
+
+          if (result.error) {
+            alert(result.error);
+            return;
+          }
+
+          alert('Комната удалена');
+
+          await fetchRooms();
+        }}
+      >
+        Удалить
+      </Button>
+    </Card>
+  ))}
+</div>
         </div>
       )}
 
