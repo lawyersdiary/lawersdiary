@@ -6,7 +6,13 @@ import { useRoomStore } from '@/store/useDataStores';
 
 
 const Rooms: React.FC = () => {
-  const { rooms, createRoom, fetchRooms } = useRoomStore();
+  const {
+  rooms,
+  createRoom,
+  fetchRooms,
+  joinRoom,
+  sendMessage,
+} = useRoomStore();
   const [createOpen, setCreateOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   useEffect(() => {
@@ -86,7 +92,10 @@ const Rooms: React.FC = () => {
                     hover
                     padding="sm"
                     className={selectedRoom === room.id ? 'border-indigo-500/50 bg-indigo-500/10' : ''}
-                    onClick={() => setSelectedRoom(room.id)}
+                    onClick={async () => {
+  await joinRoom(room.id);
+  setSelectedRoom(room.id);
+}}
                   >
                     <div className="flex items-start gap-3">
                       <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-500 to-violet-500 flex items-center justify-center text-white text-sm font-bold shrink-0">
@@ -162,9 +171,19 @@ const Rooms: React.FC = () => {
                     placeholder="Написать сообщение..."
                     className="flex-1 bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-white text-sm placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500"
                   />
-                  <Button size="sm" icon={<Send className="w-4 h-4" />}>
-                    Отправить
-                  </Button>
+                  <Button
+  size="sm"
+  icon={<Send className="w-4 h-4" />}
+  onClick={async () => {
+    if (!selectedRoom || !newMessage.trim()) return;
+
+    await sendMessage(selectedRoom, newMessage);
+
+    setNewMessage('');
+  }}
+>
+  Отправить
+</Button>
                 </div>
               </div>
             </Card>
