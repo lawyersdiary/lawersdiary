@@ -132,14 +132,45 @@ export const useRoomStore = create<RoomState>((set, get) => ({
     try {
       const { data } = await supabase
         .from('messages')
-        .select(`
-  *,
-  profile:profiles(username)
-`)
+        .select('*')
         .eq('room_id', roomId)
         .order('created_at', { ascending: true })
         .limit(100);
-      if (data) set({ messages: data });
+      if (data) {
+  const formatted = await Promise.all(
+    data.map(async (msg: any) => {
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('username')
+        .eq('user_id', msg.user_id)
+        .single();
+if (data) {
+  const formatted = await Promise.all(
+    data.map(async (msg: any) => {
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('username')
+        .eq('user_id', msg.user_id)
+        .single();
+
+      return {
+        ...msg,
+        username: profile?.username || 'Пользователь',
+      };
+    })
+  );
+
+  set({ messages: formatted });
+}
+      return {
+        ...msg,
+        username: profile?.username || 'Пользователь',
+      };
+    })
+  );
+
+  set({ messages: formatted });
+}
     } catch { /* ignore */ }
   },
 
