@@ -50,7 +50,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
             .from('profiles')
             .select('*')
             .eq('user_id', session.user.id)
-            .single();
+            .maybeSingle()
           set({ user: session.user, session, profile, loading: false, initialized: true, supabaseReady: true });
         } catch {
           set({ user: session.user, session, profile: null, loading: false, initialized: true, supabaseReady: true });
@@ -71,7 +71,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
                 .from('profiles')
                 .select('*')
                 .eq('user_id', session.user.id)
-                .single();
+                .maybeSingle()
               set({ user: session.user, session, profile });
             } catch {
               set({ user: session.user, session });
@@ -145,7 +145,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
   fetchProfile: async (userId) => {
     if (!supabase) return;
     try {
-      const { data } = await supabase.from('profiles').select('*').eq('user_id', userId).single();
+      const { data } = await supabase.from('profiles').select('*').eq('user_id', userId).maybeSingle()
       if (data) set({ profile: data });
     } catch { /* ignore */ }
   },
