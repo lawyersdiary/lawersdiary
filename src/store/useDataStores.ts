@@ -255,7 +255,9 @@ export const useQuizStore = create<QuizState>((set) => ({
         .from('tests')
         .insert({ ...testData, owner_id: user.id })
         .select('*').single();
-      if (error) return { error: error.message };
+      if (error && !error.message.includes('duplicate key')) {
+  return { error: error.message };
+}
       set((s) => ({ tests: [data, ...s.tests] }));
       return { error: null, test: data };
     } catch (err) {
