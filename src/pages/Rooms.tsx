@@ -5,17 +5,46 @@ import { Card, Button, Input, Badge, Modal, EmptyState } from '@/components/ui';
 import { useRoomStore } from '@/store/useDataStores';
 
 const Rooms: React.FC = () => {
-  const { rooms } = useRoomStore();
+  const { rooms, createRoom, fetchRooms } = useRoomStore();
   const [createOpen, setCreateOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedRoom, setSelectedRoom] = useState<string | null>(null);
   const [newMessage, setNewMessage] = useState('');
   const [newRoom, setNewRoom] = useState({ name: '', description: '', type: 'public', password: '', category: '' });
-
+  const [roomName, setRoomName] = useState('');
+  const [creating, setCreating] = useState(false);
+  
   const filteredRooms = rooms.filter((r) =>
     r.name.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
+  const handleCreateRoom = async () => {
+  if (!roomName.trim()) return;
+
+  setCreating(true);
+
+  const result = await createRoom({
+    name: roomName,
+    description: '',
+    type: 'public',
+    is_active: true,
+  });
+
+  setCreating(false);
+
+  if (result.error) {
+    console.error(result.error);
+    alert(result.error);
+    return;
+  }
+
+  setRoomName('');
+
+  await fetchRooms();
+
+  alert('Комната создана');
+};
+  
   return (
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
@@ -170,7 +199,41 @@ const Rooms: React.FC = () => {
           {newRoom.type === 'password' && (
             <Input label="Пароль" value={newRoom.password} onChange={(e) => setNewRoom({ ...newRoom, password: e.target.value })} placeholder="Пароль для входа" type="password" />
           )}
-          <Button className="w-full" onClick={() => setCreateOpen(false)}>Создать</Button>
+          <Button
+  className="w-full"
+  onClick={async () => {
+    const result = await createRoom({
+      name: newRoom.name,
+      description: newRoom.description,
+      type: newRoom.type as 'public' | 'private' | 'password',
+      category: newRoom.category,
+      password: newRoom.password,
+      is_active: true,
+    });
+
+    if (result.error) {
+      alert(result.error);
+      console.error(result.error);
+      return;
+    }
+
+    await fetchRooms();
+
+    setCreateOpen(false);
+
+    setNewRoom({
+      name: '',
+      description: '',
+      type: 'public',
+      category: '',
+      password: '',
+    });
+
+    alert('Комната создана');
+  }}
+>
+  Создать
+</Button>
         </div>
       </Modal>
     </div>
